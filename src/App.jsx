@@ -23,7 +23,7 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productData = { name, desc, ImageURL: imageURL, price: 2000 };
+    const productData = { name, desc, ImageURL: imageURL, price: 6000};
     try {
       if (editingId) {
         await axios.put(`${API_URL}/${editingId}`, productData);
@@ -123,7 +123,7 @@ function App() {
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
         {products.map((pr) => (
           <div key={pr.id} style={{ width: '280px', backgroundColor: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', border: '1px solid #eee' }}>
-            <img src={pr.ImageURL} alt={pr.name} style={{ width: '100%', hieght: '180px', objectFit: 'cover' }} />
+            <img src={pr.ImageURL} alt={pr.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
             <div style={{ padding: '15px' }}>
               <h3 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '5px' }}>{pr.name}</h3>
               <p style={{ color: '#666', fontSize: '14px', height: '40px', overflow: 'hidden' }}>{pr.desc}</p>
