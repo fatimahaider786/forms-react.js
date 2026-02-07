@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -16,97 +16,142 @@ function App() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5050/products");
+      const res = await axios.get(API_URL);
       setProducts(res.data);
-    } catch (err) { console.log("Fetch Error:", err); }
+    } catch (error) {
+      console.log("Fetch error:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const productData = { name, desc, ImageURL: imageURL, price: 6000};
+
+    const productData = {
+      name,
+      desc,
+      imageURL,
+      price: 6000
+    };
+
     try {
       if (editingId) {
         await axios.put(`${API_URL}/${editingId}`, productData);
-        const updatedList = products.map(p => p.id === editingId ? { ...p, ...productData } : p);
-        setProducts(updatedList);
-        setEditingId(null);
-        alert("Product Updated!");
+        alert("Product Updated");
       } else {
-        const newProduct = { ...productData, id: Date.now() };
-        await axios.post(API_URL, newProduct);
-        setProducts([...products, newProduct]);
-        alert("Product Added!");
+        await axios.post(API_URL, {
+          ...productData,
+          id: Date.now().toString()
+        });
+        alert("Product Added");
       }
+
+      fetchProducts();
       clearForm();
-    } catch (err) { console.log("Error:", err); }
+    } catch (error) {
+      console.log("Submit error:", error);
+    }
   };
 
   const deleteProduct = async (id) => {
-    if (!window.confirm("Kya aap ise delete karna chahte hain?")) return;
+    if (!window.confirm("Delete this product?")) return;
+
     try {
-      await axios.delete(`${"http://localhost:5050/products"}/${id}`);
-      setProducts(products.filter(p => p.id !== id));
-    } catch (err) { console.log("Delete Error:", err); }
+      await axios.delete(`${API_URL}/${id}`);
+      fetchProducts();
+    } catch (error) {
+      console.log("Delete error:", error);
+    }
   };
 
   const prepareUpdate = (product) => {
     setEditingId(product.id);
     setName(product.name);
     setDesc(product.desc);
-    setImageURL(product.ImageURL);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setImageURL(product.imageURL);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearForm = () => {
-    setName(""); setDesc(""); setImageURL(""); setEditingId(null);
+    setName("");
+    setDesc("");
+    setImageURL("");
+    setEditingId(null);
   };
 
   return (
-    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh', padding: '20px', fontFamily: 'sans-serif' }}>
+    <div style={{ backgroundColor: "#f3f4f6", minHeight: "100vh", padding: "20px" }}>
       
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '50px' }}>
-        <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#fff', padding: '30px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
-            {editingId ? "Edit Product ✏️" : "Add New Product"}
+      {/* FORM */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "40px" }}>
+        <div style={{
+          width: "100%",
+          maxWidth: "500px",
+          backgroundColor: "#fff",
+          padding: "25px",
+          borderRadius: "10px",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
+        }}>
+          <h2 style={{ fontSize: "22px", fontWeight: "bold", marginBottom: "15px" }}>
+            {editingId ? "Edit Product ✏️" : "Add Product"}
           </h2>
-          
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <div>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Name</label>
-              <input 
-                style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '5px' }}
-                type="text" value={name} placeholder="Enter Product Name" 
-                onChange={(e) => setName(e.target.value)} required 
-              />
-            </div>
 
-            <div>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Image URL</label>
-              <input 
-                style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '5px' }}
-                type="text" value={imageURL} placeholder="Enter your image" 
-                onChange={(e) => setImageURL(e.target.value)} required 
-              />
-            </div>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <input
+              type="text"
+              placeholder="Product Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
+            />
 
-            <div>
-              <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '5px' }}>Description</label>
-              <textarea 
-                style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '5px', minHeight: '80px' }}
-                value={desc} placeholder="Short description..." 
-                onChange={(e) => setDesc(e.target.value)} required 
-              ></textarea>
-            </div>
+            <input
+              type="text"
+              placeholder="Image URL"
+              value={imageURL}
+              onChange={(e) => setImageURL(e.target.value)}
+              required
+              style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
+            />
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button 
-                type="submit" 
-                style={{ flex: 1, padding: '12px', backgroundColor: editingId ? '#16a34a' : '#000', color: '#fff', borderRadius: '5px', fontWeight: 'bold', cursor: 'pointer', border: 'none' }}
+            <textarea
+              placeholder="Description"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              required
+              style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }}
+            />
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                type="submit"
+                style={{
+                  flex: 1,
+                  padding: "10px",
+                  backgroundColor: editingId ? "#16a34a" : "#000",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  cursor: "pointer"
+                }}
               >
-                {editingId ? "Update" : "Add Product"}
+                {editingId ? "Update" : "Add"}
               </button>
+
               {editingId && (
-                <button type="button" onClick={clearForm} style={{ flex: 1, padding: '12px', backgroundColor: '#9ca3af', color: '#fff', borderRadius: '5px', border: 'none' }}>
+                <button
+                  type="button"
+                  onClick={clearForm}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    backgroundColor: "#9ca3af",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer"
+                  }}
+                >
                   Cancel
                 </button>
               )}
@@ -115,31 +160,61 @@ function App() {
         </div>
       </div>
 
-      <hr style={{ margin: '40px 0', border: '0.5px solid #ccc' }} />
+      {/* PRODUCTS */}
+      <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Product Catalog</h2>
 
-      {/* --- CATALOG SECTION --- */}
-      <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: 'bold', marginBottom: '30px' }}>Product Catalog</h2>
-      
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "20px",
+        justifyContent: "center"
+      }}>
         {products.map((pr) => (
-          <div key={pr.id} style={{ width: '280px', backgroundColor: '#fff', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', border: '1px solid #eee' }}>
-            <img src={pr.ImageURL} alt={pr.name} style={{ width: '100%', height: '180px', objectFit: 'cover' }} />
-            <div style={{ padding: '15px' }}>
-              <h3 style={{ fontWeight: 'bold', fontSize: '18px', marginBottom: '5px' }}>{pr.name}</h3>
-              <p style={{ color: '#666', fontSize: '14px', height: '40px', overflow: 'hidden' }}>{pr.desc}</p>
-              <p style={{ color: '#2563eb', fontWeight: 'bold', fontSize: '20px', margin: '10px 0' }}>Rs. {pr.price}</p>
-              
-              {/* FIXED BUTTONS */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button 
-                  onClick={() => prepareUpdate(pr)} 
-                  style={{ flex: 1, padding: '8px', backgroundColor: '#2563eb', color: '#white', borderRadius: '5px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          <div key={pr.id} style={{
+            width: "260px",
+            backgroundColor: "#fff",
+            borderRadius: "10px",
+            overflow: "hidden",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            <img
+              src={pr.imageURL}
+              alt={pr.name}
+              style={{ width: "100%", height: "160px", objectFit: "cover" }}
+            />
+
+            <div style={{ padding: "12px" }}>
+              <h3 style={{ fontWeight: "bold" }}>{pr.name}</h3>
+              <p style={{ fontSize: "14px", color: "#555" }}>{pr.desc}</p>
+              <p style={{ fontWeight: "bold", color: "#2563eb" }}>Rs. {pr.price}</p>
+
+              <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                <button
+                  onClick={() => prepareUpdate(pr)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#2563eb",
+                    color: "#fff",
+                    border: "none",
+                    padding: "6px",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
                 >
                   Edit
                 </button>
-                <button 
-                  onClick={() => deleteProduct(pr.id)} 
-                  style={{ flex: 1, padding: '8px', backgroundColor: '#dc2626', color: '#white', borderRadius: '5px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+
+                <button
+                  onClick={() => deleteProduct(pr.id)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#dc2626",
+                    color: "#fff",
+                    border: "none",
+                    padding: "6px",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
                 >
                   Delete
                 </button>
