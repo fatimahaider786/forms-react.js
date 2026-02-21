@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router"; 
 import App from './App.jsx';
-import Login from './components/Login.jsx';
+import Login from './components/login.jsx';
 import Signup from './components/Signup';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
